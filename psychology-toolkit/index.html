@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공부 스위치를 켜는 심리학 도구 상자</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #F4F4F4;
+            color: #333;
+        }
+        .content-card {
+            transition: all 0.3s ease-in-out;
+            background-color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+        }
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .nav-button {
+            transition: all 0.2s ease-in-out;
+            color: #555;
+        }
+        .nav-button.active {
+            background-color: #8D99AE;
+            color: #FFFFFF;
+            transform: scale(1.05);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .interactive-node {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .interactive-node:hover, .interactive-node.active {
+            transform: scale(1.08);
+            border-color: #EFB08C;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Chosen Palette: Calm Grays and Soft Orange -->
+    <!-- Application Structure Plan: This SPA is designed as a "Psychological Toolkit for Studying", structured into three core psychological pillars (Behavior, Cognition, Motivation) and a final synthesis section. This thematic structure allows users to explore each psychological engine separately and then see how they combine. The goal is to provide not just information but also interactive "mini-tools" (like the habit loop diagram and goal setter) within each section. This makes the psychological concepts practical and immediately applicable for the user, aligning with the "learntolearn" philosophy. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Habit Loop (Cue, Routine, Reward) -> Goal: Show a process -> Viz/Method: Interactive clickable diagram -> Interaction: Click steps for details -> Justification: Makes the abstract behavioral concept tangible and memorable -> Library/Method: HTML/CSS/JS.
+        - Report Info: SMART Goals -> Goal: Provide a practical tool -> Viz/Method: Simple interactive form -> Interaction: User input transforms a vague goal into a SMART one -> Justification: Moves from theory to direct application, enhancing user engagement and learning -> Library/Method: HTML/JS.
+        - Report Info: Self-Determination Theory (SDT) -> Goal: Organize/Inform -> Viz/Method: Three clickable cards representing Autonomy, Competence, Relatedness -> Interaction: Click to see study-specific application examples -> Justification: Breaks a key motivational theory into actionable parts -> Library/Method: HTML/CSS/JS.
+        - Report Info: Overall Study Approach -> Goal: Summarize/Compare -> Viz/Method: Radar Chart -> Interaction: Tooltips on hover -> Justification: Visually contrasts an ineffective (willpower-based) approach with an effective (system-based) one, synthesizing the app's key messages -> Library/Method: Chart.js.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <div class="container mx-auto px-4 py-8 md:py-12">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#2B3A42] mb-4">공부 스위치를 켜는 심리학 도구 상자</h1>
+            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+                의지력에만 기대는 공부는 이제 그만. 심리학적 원리를 이용해 '공부가 저절로 되는' 시스템을 만들어 보세요.
+            </p>
+        </header>
+
+        <nav class="flex flex-wrap justify-center gap-2 md:gap-4 mb-12">
+            <button data-section="behavior" class="nav-button active text-sm md:text-base font-semibold py-2 px-4 rounded-full bg-white shadow">🔧 행동의 기술</button>
+            <button data-section="cognition" class="nav-button text-sm md:text-base font-semibold py-2 px-4 rounded-full bg-white shadow">🧠 생각의 전략</button>
+            <button data-section="motivation" class="nav-button text-sm md:text-base font-semibold py-2 px-4 rounded-full bg-white shadow">❤️ 마음의 연료</button>
+            <button data-section="synthesis" class="nav-button text-sm md:text-base font-semibold py-2 px-4 rounded-full bg-white shadow">📊 종합 실천 계획</button>
+        </nav>
+
+        <main>
+            <section id="behavior" class="app-section">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-[#2B3A42]">행동의 기술: 저절로 움직이게 만들기</h2>
+                    <p class="mt-2 text-gray-600">의지력 대신 '습관'과 '환경'의 힘을 이용하는 방법입니다. 아래 단계를 클릭해 보세요.</p>
+                </div>
+                <div class="content-card p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold mb-4 text-center">습관의 고리 (Habit Loop)</h3>
+                    <div class="flex flex-col md:flex-row justify-around items-center gap-4 mb-6">
+                        <div data-habit="cue" class="interactive-node text-center p-4 rounded-lg">
+                            <div class="text-5xl mb-2">⏰</div>
+                            <h4 class="font-bold text-lg">신호 (Cue)</h4>
+                            <p class="text-sm">행동을 시작하게 하는 스위치</p>
+                        </div>
+                        <div class="text-2xl text-gray-400 font-bold">→</div>
+                        <div data-habit="routine" class="interactive-node text-center p-4 rounded-lg">
+                            <div class="text-5xl mb-2">📖</div>
+                            <h4 class="font-bold text-lg">반복 행동 (Routine)</h4>
+                            <p class="text-sm">내가 원하는 바로 그 습관</p>
+                        </div>
+                        <div class="text-2xl text-gray-400 font-bold">→</div>
+                        <div data-habit="reward" class="interactive-node text-center p-4 rounded-lg">
+                            <div class="text-5xl mb-2">🏆</div>
+                            <h4 class="font-bold text-lg">보상 (Reward)</h4>
+                            <p class="text-sm">뇌가 이 고리를 기억하게 만드는 즐거움</p>
+                        </div>
+                    </div>
+                    <div id="habit-display" class="p-4 bg-gray-50 rounded-md min-h-[100px] text-gray-700">
+                        <p class="font-semibold">위의 단계를 클릭하여 구체적인 예시를 확인하세요.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="cognition" class="app-section hidden">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-[#2B3A42]">생각의 전략: 똑똑하게 계획하기</h2>
+                    <p class="mt-2 text-gray-600">막연한 다짐을 구체적인 행동으로 바꾸는 생각의 기술입니다.</p>
+                </div>
+                <div class="content-card p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold mb-4">SMART 목표 설정 도우미</h3>
+                    <p class="mb-4 text-gray-600">'주역 공부하기'처럼 막연한 목표를 입력하고, 어떻게 구체적인 계획으로 바뀌는지 확인해 보세요.</p>
+                    <div class="flex flex-col md:flex-row gap-4 mb-4">
+                        <input id="goal-input" type="text" placeholder="막연한 목표를 입력하세요 (예: 주역 공부하기)" class="flex-grow p-3 border rounded-md focus:ring-2 focus:ring-[#EFB08C] focus:outline-none">
+                        <button id="goal-button" class="bg-[#8D99AE] text-white font-bold py-3 px-6 rounded-md hover:bg-[#7888A1] transition-colors">목표 구체화하기</button>
+                    </div>
+                    <div id="smart-goal-output" class="space-y-2"></div>
+                </div>
+            </section>
+
+            <section id="motivation" class="app-section hidden">
+                 <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-[#2B3A42]">마음의 연료: 공부하고 싶게 만들기</h2>
+                    <p class="mt-2 text-gray-600">억지로 하는 공부가 아닌, 마음에서 우러나오는 에너지를 채우는 방법입니다.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div data-motivation="autonomy" class="interactive-node content-card p-6 rounded-lg text-center">
+                        <div class="text-5xl mb-3">🎮</div>
+                        <h3 class="text-xl font-bold mb-2">자율성 (Autonomy)</h3>
+                        <p class="text-gray-600">"내가 선택하고 조절한다!"</p>
+                    </div>
+                    <div data-motivation="competence" class="interactive-node content-card p-6 rounded-lg text-center">
+                        <div class="text-5xl mb-3">📈</div>
+                        <h3 class="text-xl font-bold mb-2">유능감 (Competence)</h3>
+                        <p class="text-gray-600">"점점 잘하고 있어! 성장하고 있다!"</p>
+                    </div>
+                    <div data-motivation="relatedness" class="interactive-node content-card p-6 rounded-lg text-center">
+                        <div class="text-5xl mb-3">🤝</div>
+                        <h3 class="text-xl font-bold mb-2">관계성 (Relatedness)</h3>
+                        <p class="text-gray-600">"나의 공부는 의미 있게 연결되어 있다!"</p>
+                    </div>
+                </div>
+                <div id="motivation-display" class="mt-6 p-6 bg-white rounded-lg shadow-inner min-h-[120px] text-gray-700">
+                     <p class="font-semibold">위의 3가지 심리적 욕구를 클릭하여 공부에 적용하는 방법을 알아보세요.</p>
+                </div>
+            </section>
+
+            <section id="synthesis" class="app-section hidden">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-[#2B3A42]">종합 실천 계획</h2>
+                    <p class="mt-2 text-gray-600">두 가지 공부 접근법을 비교하고, 당신의 첫걸음을 계획해 보세요.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                     <h3 class="text-2xl font-bold text-center mb-4">접근법 비교: 의지력 vs 시스템</h3>
+                    <div class="chart-container">
+                        <canvas id="approachChart"></canvas>
+                    </div>
+                    <div class="mt-8 text-center">
+                        <h3 class="text-2xl font-bold mb-4">나의 첫걸음 계획하기</h3>
+                        <p class="mb-4 text-gray-600">이 모든 것을 바탕으로, 지금 당장 실천할 수 있는 '아주 작은' 첫 행동은 무엇인가요?</p>
+                        <input type="text" placeholder="예: 주역 책을 컴퓨터 옆에 두기" class="w-full max-w-lg mx-auto p-3 border rounded-md focus:ring-2 focus:ring-[#EFB08C] focus:outline-none">
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.app-section');
+            const navButtons = document.querySelectorAll('.nav-button');
+
+            const habitNodes = document.querySelectorAll('[data-habit]');
+            const habitDisplay = document.getElementById('habit-display');
+            
+            const goalInput = document.getElementById('goal-input');
+            const goalButton = document.getElementById('goal-button');
+            const smartGoalOutput = document.getElementById('smart-goal-output');
+
+            const motivationNodes = document.querySelectorAll('[data-motivation]');
+            const motivationDisplay = document.getElementById('motivation-display');
+
+            const habitData = {
+                cue: "<strong>예시:</strong> '매일 저녁 8시' 알람이 울리거나, '지하철을 타면' 바로 책을 꺼낼 수 있도록 가방 맨 앞주머니에 넣어두는 것입니다. 공부를 시작하게 만드는 명확하고 구체적인 신호를 설계하세요.",
+                routine: "<strong>예시:</strong> 처음에는 '주역 1페이지 읽기', '단어 3개 외우기'처럼 아주 작고 저항감 없는 행동으로 시작하는 것이 핵심입니다. 5분 안에 끝낼 수 있는 분량이면 가장 좋습니다.",
+                reward: "<strong>예시:</strong> 반복 행동 직후에 즉시 만족감을 주는 것입니다. '좋아하는 음악 한 곡 듣기', '달력에 멋진 스티커 붙이기', '따뜻한 차 한 잔 마시기' 등 작지만 확실한 보상이 뇌가 이 습관을 긍정적으로 기억하게 만듭니다."
+            };
+
+            const motivationData = {
+                autonomy: "<strong>적용하기:</strong> '오늘은 3괘 대신 5괘부터 봐야지', '오늘은 30분만 집중하고 끝내야지' 처럼 공부할 내용, 시간, 장소, 방법을 스스로 선택하고 통제할 때 동기가 부여됩니다. '해야만 한다'가 아닌 '하기로 했다'는 느낌이 중요합니다.",
+                competence: "<strong>적용하기:</strong> 어제의 나보다 조금이라도 나아졌다는 느낌을 받는 것이 중요합니다. '어려운 개념을 내 말로 설명해보기', '풀지 못했던 문제를 다시 풀어보기', '학습 일지에 내가 공부한 내용을 간단히 기록하기' 등을 통해 성취감을 시각적으로 확인하세요.",
+                relatedness: "<strong>적용하기:</strong> 나의 공부가 고립된 것이 아니라 세상과 연결되어 있다는 느낌입니다. '블로그에 배운 내용을 정리해서 올리기', '스터디 그룹에서 토론하기', '누군가에게 내가 배운 것을 가르쳐주기' 등 지식을 나누는 활동을 통해 강력한 동기를 얻을 수 있습니다."
+            };
+
+            function switchSection(targetId) {
+                sections.forEach(section => section.classList.add('hidden'));
+                document.getElementById(targetId).classList.remove('hidden');
+                document.getElementById(targetId).classList.add('fade-in');
+
+                navButtons.forEach(button => {
+                    button.classList.remove('active');
+                    if (button.dataset.section === targetId) button.classList.add('active');
+                });
+            }
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => switchSection(button.dataset.section));
+            });
+
+            habitNodes.forEach(node => {
+                node.addEventListener('click', () => {
+                    habitDisplay.innerHTML = `<p class="fade-in">${habitData[node.dataset.habit]}</p>`;
+                    habitNodes.forEach(n => n.classList.remove('active'));
+                    node.classList.add('active');
+                });
+            });
+
+            motivationNodes.forEach(node => {
+                node.addEventListener('click', () => {
+                    motivationDisplay.innerHTML = `<p class="fade-in">${motivationData[node.dataset.motivation]}</p>`;
+                    motivationNodes.forEach(n => n.classList.remove('active'));
+                    node.classList.add('active');
+                });
+            });
+
+            goalButton.addEventListener('click', () => {
+                const goal = goalInput.value.trim();
+                if (!goal) {
+                    smartGoalOutput.innerHTML = `<p class="text-red-500 fade-in">목표를 입력해주세요!</p>`;
+                    return;
+                }
+                smartGoalOutput.innerHTML = `
+                    <div class="p-4 bg-gray-50 rounded-md fade-in">
+                        <p><strong class="text-[#8D99AE]">S (Specific):</strong> '<strong>${goal}</strong>' 목표를 위해, 구체적으로 어떤 '첫' 단계를 밟을 것인가?</p>
+                        <p><strong class="text-[#8D99AE]">M (Measurable):</strong> '<strong>${goal}</strong>'을 얼마나, 몇 페이지, 몇 분 동안 할 것인가?</p>
+                        <p><strong class="text-[#8D99AE]">A (Achievable):</strong> 그 목표는 현실적으로 달성 가능한가? (5분 안에 가능한가?)</p>
+                        <p><strong class="text-[#8D99AE]">R (Relevant):</strong> '<strong>${goal}</strong>'은 현재 당신의 더 큰 목표와 관련이 있는가?</p>
+                        <p><strong class="text-[#8D99AE]">T (Time-bound):</strong> 언제까지 이 작은 목표를 달성할 것인가? (오늘 저녁? 이번 주말?)</p>
+                    </div>
+                `;
+            });
+
+            const ctx = document.getElementById('approachChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['지속 가능성', '스트레스 수준', '성취감', '초기 저항감', '자기효능감', '결과의 안정성'],
+                    datasets: [{
+                        label: '시스템 접근법',
+                        data: [9, 2, 9, 3, 9, 8],
+                        backgroundColor: 'rgba(141, 153, 174, 0.2)',
+                        borderColor: 'rgba(141, 153, 174, 1)',
+                        borderWidth: 2
+                    }, {
+                        label: '의지력 접근법',
+                        data: [3, 8, 4, 8, 4, 3],
+                        backgroundColor: 'rgba(239, 176, 140, 0.2)',
+                        borderColor: 'rgba(239, 176, 140, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { r: { suggestedMin: 0, suggestedMax: 10 } },
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
